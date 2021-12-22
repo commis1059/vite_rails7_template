@@ -12,6 +12,9 @@ The installed applications are as follows:
 
 # Usage
 ```shell
+$ curl -L -O https://github.com/commis1059/vite_rails_template/archive/refs/heads/main.zip
+$ mv vite_rails_template-main ${PROJECT_NAME}
+$ cd ${PROJECT_NAME}
 $ cp .env.template .env
 $ vi .env
 $ ./install.sh
