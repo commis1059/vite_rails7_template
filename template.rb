@@ -1,12 +1,14 @@
-require "bundler"
-require_relative "lib/actions"
+# frozen_string_literal: true
+
+require 'bundler'
+require_relative 'lib/actions'
 
 extend Lib::Actions
 
 # Database
 template 'config/database.yml', force: true do |content|
   content % {
-    project_name: ENV.fetch("PROJECT_NAME").then {|name| name.empty? ? File.basename(Dir.pwd) : name },
+    project_name: ENV.fetch('PROJECT_NAME').then {|name| name.empty? ? File.basename(Dir.pwd) : name },
     pool: '<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>',
     username: '<%= ENV.fetch("MYSQL_USERNAME") { Rails.application.credentials.dig(:mysql, :username) } %>',
     password: '<%= ENV.fetch("MYSQL_PASSWORD") { Rails.application.credentials.dig(:mysql, :password) } %>',
@@ -41,42 +43,38 @@ after_bundle do
   # For RSpec
   run 'bin/rails g rspec:install'
   # Enable the line: Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }
-  uncomment_lines 'spec/rails_helper.rb', Regexp.escape("Dir[Rails.root.join")
+  uncomment_lines 'spec/rails_helper.rb', Regexp.escape('Dir[Rails.root.join')
   copy_file 'spec/support/factory_bot.rb'
   copy_file 'spec/support/time_helpers.rb'
   file 'config/initializers/generators.rb' do
     <<~EOS
-    # frozen_string_literal: true
-    
-    Rails.application.config.generators do |g|
-      g.helper false
-      g.test_framework :rspec, view_specs: false, controller_specs: false, fixture: true
-      g.fixture_replacement :factory_bot, dir: 'spec/factories'
-      g.stylesheets = false
-      g.javascripts = false
-    end
+      # frozen_string_literal: true
+
+      Rails.application.config.generators do |g|
+        g.helper false
+        g.test_framework :rspec, view_specs: false, controller_specs: false, fixture: true
+        g.fixture_replacement :factory_bot, dir: 'spec/factories'
+        g.stylesheets = false
+        g.javascripts = false
+      end
     EOS
   end
 
   # For Bullet
-  environment env: :development do
-    <<~EOS
+  environment(<<~EOS, env: :development)
     config.after_initialize do
       Bullet.enable = true
       Bullet.console = true
       Bullet.rails_logger = true
     end
-    EOS
-  end
-  environment env: :test do
-    <<~EOS
+  EOS
+  environment(<<~EOS, env: :test)
     config.after_initialize do
       Bullet.enable = true
       Bullet.rails_logger = true
       Bullet.raise = true
     end
-    EOS
-  end
+  EOS
 
   # For Rubocop
   run 'bundle exec rubocop --auto-gen-config'
@@ -87,12 +85,12 @@ after_bundle do
     ---
     Installation is complete.
     You need to execute `EDITOR="vi" bin/rails credentials:edit` for each environment.
-  
+
     Ex.
     $ EDITOR="vi" bin/rails credentials:edit -e development
-  
+
     Then, configure the following to connect the DB.
-     
+
     mysql:
       username:
       password:
